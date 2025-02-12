@@ -52,5 +52,5 @@ CREATE TABLE Produzione(
     FOREIGN KEY (id_autore) REFERENCES Libri(id_autore)
 );
 
-INSERT INTO Libri(1,"Harry Pot", 1,1997, "9780747532743", 19.99, 100");
+INSERT INTO Libri(1,"Harry Pot", 1,1997, "9780747532743", 19.99, 100);
 INSERT INTO Autori(1, "J.K.", "Rowling", "1965-07-31", "Britannica","nata a Nociglia il 7 marzo");
