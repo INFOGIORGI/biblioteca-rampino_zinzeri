@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <title>Elenco Libri</title>
+</head>
+<body>
+    <h1>Elenco Libri</h1>
+    <a href="/">Torna alla home</a> |
+    <a href="/sort/titolo">Ordina per Titolo</a> |
+    <a href="/sort/autore">Ordina per Autore</a>
+    <ul>
+        {% for book in books %}
+            <li>{{ book['titolo'] }} - ISBN: {{ book['isbn'] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

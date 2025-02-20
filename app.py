@@ -14,44 +14,55 @@ app.config['MYSQL_PASSWORD'] = 'ospite'
 app.config['MYSQL_DB'] = 'w3schools'
 mysql = MySQL(app)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-
-@app.route("/")
-def home():
-    return render_template("index.html",titolo="Home")
-
-@app.route("/addProduct/",methods=["GET","POST"])
-def addProduct():
-    if request.method == 'GET':
-        return render_template("addProduct.html",titolo="Add")
-    else:
-        productName = request.form.get("productName","")
-        supplierID = request.form.get("supplierID","")
-        price = request.form.get("price","")
-
-        if productName=="" or supplierID=="" or price=="":
-            flash("It is necessary to fill in all the fields.")
-            return redirect(url_for('addProduct'))
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
+    if request.method == 'POST':
+        titolo = request.form['titolo']
+        autore = request.form['autore']
+        anno = request.form['anno']
+        isbn = request.form['isbn']
+        genere = request.form['genere']
         
-        e = db.addProduct(mysql,productName,supplierID,price)
-        if not e:
-            flash("Supplier ID does not exist.")
-            return redirect(url_for('addProduct'))
-        flash("Product added successfully.")
-        return redirect(url_for('addProduct'))
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO Libri (titolo, id_autore, data_pubblicazione, isbn, quantita) VALUES (%s, %s, %s, %s, 1)",
+                    (titolo, autore, anno, isbn))
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('view_books'))
+    return render_template('add_book.html')
 
-@app.route("/orders/")
-def orders():
-    return render_template("orders.html",orders=db.allOrders(mysql),titolo="Orders")
-       
+@app.route('/view_books')
+def view_books():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Libri")
+    books = cur.fetchall()
+    cur.close()
+    return render_template('view_books.html', books=books)
 
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query', '')
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Libri WHERE titolo LIKE %s OR id_autore IN (SELECT id_autore FROM Autori WHERE nome LIKE %s OR cognome LIKE %s)", 
+                ('%' + query + '%', '%' + query + '%', '%' + query + '%'))
+    results = cur.fetchall()
+    cur.close()
+    return render_template('search_results.html', results=results, query=query)
 
-@app.route("/details/<id>")
-def details(id):
-    return render_template("orders.html",orders=db.details(id),titolo="Details",extra = "for customerID "+id)
-       
-@app.route("/api/orders/")
-def api_orders():
-    return db.api_allOrders(mysql)
+@app.route('/sort/<criteria>')
+def sort_books(criteria):
+    cur = mysql.connection.cursor()
+    if criteria == 'titolo':
+        cur.execute("SELECT * FROM Libri ORDER BY titolo ASC")
+    elif criteria == 'autore':
+        cur.execute("SELECT L.*, A.nome, A.cognome FROM Libri L JOIN Autori A ON L.id_autore = A.id_autore ORDER BY A.cognome ASC")
+    books = cur.fetchall()
+    cur.close()
+    return render_template('view_books.html', books=books)
 
-app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <title>Risultati Ricerca</title>
+</head>
+<body>
+    <h1>Risultati per "{{ query }}"</h1>
+    <a href="/">Torna alla home</a>
+    <ul>
+        {% for book in results %}
+            <li>{{ book['titolo'] }} - ISBN: {{ book['isbn'] }}</li>
+        {% else %}
+            <p>Nessun risultato trovato.</p>
+        {% endfor %}
+    </ul>
+</body>
+</html>
