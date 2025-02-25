@@ -1,17 +1,39 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <title>Risultati Ricerca</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risultati della Ricerca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Risultati per "{{ query }}"</h1>
-    <a href="/">Torna alla home</a>
-    <ul>
-        {% for book in results %}
-            <li>{{ book['titolo'] }} - ISBN: {{ book['isbn'] }}</li>
-        {% else %}
-            <p>Nessun risultato trovato.</p>
-        {% endfor %}
-    </ul>
+    <h1>Risultati della Ricerca</h1>
+    {% if results %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Titolo</th>
+                    <th>Autore</th>
+                    <th>Anno</th>
+                    <th>ISBN</th>
+                    <th>Genere</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in results %}
+                <tr>
+                    <td>{{ book[1] }}</td>
+                    <td>{{ book[2] }}</td>
+                    <td>{{ book[3] }}</td>
+                    <td>{{ book[4] }}</td>
+                    <td>{{ book[5] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nessun libro trovato.</p>
+    {% endif %}
+    <a href="{{ url_for('index') }}">Torna alla Home</a>
 </body>
 </html>

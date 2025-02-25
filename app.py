@@ -1,18 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for
 from flask_mysqldb import MySQL
-import db
-import json
 
 app = Flask(__name__)
-app.secret_key = "super secret key"
+app.secret_key = "super_secret_key"
 
-
-app.config['MYSQL_HOST'] = ''
-app.config['MYSQL_PORT'] = 1
-app.config['MYSQL_USER'] = 'ospite'
-app.config['MYSQL_PASSWORD'] = 'ospite'
-app.config['MYSQL_DB'] = 'w3schools'
-mysql = MySQL(app)
+# Configurazione MySQL
+app.config['MYSQL_HOST']="138.41.20.102"
+app.config['MYSQL_PORT']=53306
+app.config['MYSQL_USER']="5di"
+app.config['MYSQL_PASSWORD']="colazzo"
+app.config['MYSQL_DB']="rampino_zinzeri"
+mysql= MySQL(app)
 
 @app.route('/')
 def index():
@@ -22,44 +20,92 @@ def index():
 def add_book():
     if request.method == 'POST':
         titolo = request.form['titolo']
-        autore = request.form['autore']
+        nome_autore = request.form['autore']
         anno = request.form['anno']
         isbn = request.form['isbn']
         genere = request.form['genere']
-        
+
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO Libri (titolo, id_autore, data_pubblicazione, isbn, quantita) VALUES (%s, %s, %s, %s, 1)",
-                    (titolo, autore, anno, isbn))
+        
+        # Controlla se l'autore esiste già
+        cur.execute("SELECT id_autore FROM Autori WHERE nome = %s", (nome_autore,))
+        autore = cur.fetchone()
+        if not autore:
+            cur.execute("INSERT INTO Autori (nome, cognome) VALUES (%s, '')", (nome_autore,))
+            mysql.connection.commit()
+            cur.execute("SELECT id_autore FROM Autori WHERE nome = %s", (nome_autore,))
+            autore = cur.fetchone()
+
+        id_autore = autore[0]
+
+        # Controlla se il genere esiste già
+        cur.execute("SELECT id_genere FROM Generi WHERE nome = %s", (genere,))
+        genere_res = cur.fetchone()
+        if not genere_res:
+            cur.execute("INSERT INTO Generi (nome) VALUES (%s)", (genere,))
+            mysql.connection.commit()
+            cur.execute("SELECT id_genere FROM Generi WHERE nome = %s", (genere,))
+            genere_res = cur.fetchone()
+
+        id_genere = genere_res[0]
+
+        # Inserisci il libro
+        cur.execute("INSERT INTO Libri (titolo, id_autore, data_pubblicazione, isbn, id_genere) VALUES (%s, %s, %s, %s, %s)",
+                    (titolo, id_autore, anno, isbn, id_genere))
         mysql.connection.commit()
         cur.close()
+
         return redirect(url_for('view_books'))
-    return render_template('add_book.html')
+
+    return render_template('addbook.html')
 
 @app.route('/view_books')
 def view_books():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM Libri")
+    cur.execute("""
+    SELECT L.titolo, A.nome, L.data_pubblicazione, L.isbn, G.nome 
+    FROM Libri L
+    JOIN Autori A ON L.id_autore = A.id_autore
+    JOIN Generi G ON L.id_genere = G.id_genere
+    """)
     books = cur.fetchall()
     cur.close()
-    return render_template('view_books.html', books=books)
+    return render_template('viewbook.html', books=books)
 
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query', '')
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM Libri WHERE titolo LIKE %s OR id_autore IN (SELECT id_autore FROM Autori WHERE nome LIKE %s OR cognome LIKE %s)", 
-                ('%' + query + '%', '%' + query + '%', '%' + query + '%'))
+    cur.execute("""
+    SELECT L.titolo, A.nome, L.data_pubblicazione, L.isbn, G.nome 
+    FROM Libri L
+    JOIN Autori A ON L.id_autore = A.id_autore
+    JOIN Generi G ON L.id_genere = G.id_genere
+    WHERE L.titolo LIKE %s OR A.nome LIKE %s
+    """, ('%' + query + '%', '%' + query + '%'))
     results = cur.fetchall()
     cur.close()
-    return render_template('search_results.html', results=results, query=query)
+    return render_template('searchresults.html', results=results, query=query)
 
 @app.route('/sort/<criteria>')
 def sort_books(criteria):
     cur = mysql.connection.cursor()
     if criteria == 'titolo':
-        cur.execute("SELECT * FROM Libri ORDER BY titolo ASC")
+        cur.execute("""
+        SELECT L.titolo, A.nome, L.data_pubblicazione, L.isbn, G.nome 
+        FROM Libri L
+        JOIN Autori A ON L.id_autore = A.id_autore
+        JOIN Generi G ON L.id_genere = G.id_genere
+        ORDER BY L.titolo ASC
+        """)
     elif criteria == 'autore':
-        cur.execute("SELECT L.*, A.nome, A.cognome FROM Libri L JOIN Autori A ON L.id_autore = A.id_autore ORDER BY A.cognome ASC")
+        cur.execute("""
+        SELECT L.titolo, A.nome, L.data_pubblicazione, L.isbn, G.nome 
+        FROM Libri L
+        JOIN Autori A ON L.id_autore = A.id_autore
+        JOIN Generi G ON L.id_genere = G.id_genere
+        ORDER BY A.nome ASC
+        """)
     books = cur.fetchall()
     cur.close()
     return render_template('view_books.html', books=books)

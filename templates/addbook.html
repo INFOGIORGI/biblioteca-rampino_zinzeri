@@ -1,17 +1,37 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aggiungi Libro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h1>Aggiungi un nuovo libro</h1>
     <form method="POST">
-        Titolo: <input type="text" name="titolo" required><br>
-        Autore (ID): <input type="text" name="autore" required><br>
-        Anno Pubblicazione: <input type="text" name="anno" required><br>
-        ISBN: <input type="text" name="isbn" required><br>
-        Genere: <input type="text" name="genere" required><br>
-        <button type="submit">Aggiungi</button>
+        <label for="titolo">Titolo:</label>
+        <input type="text" id="titolo" name="titolo" required><br>
+
+        <label for="autore">Autore:</label>
+        <input type="text" id="autore" name="autore" required><br>
+
+        <label for="anno">Anno di Pubblicazione:</label>
+        <input type="number" id="anno" name="anno" required><br>
+
+        <label for="isbn">ISBN:</label>
+        <input type="text" id="isbn" name="isbn" required><br>
+
+        <label for="genere">Genere:</label>
+        <select id="genere" name="genere" required>
+            <option value="Narrativa">Narrativa</option>
+            <option value="Saggistica">Saggistica</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="Giallo">Giallo</option>
+        </select><br>
+
+        <button type="submit">Aggiungi Libro</button>
     </form>
+    <a href="{{ url_for('index') }}">Torna alla Home</a>
 </body>
 </html>
+

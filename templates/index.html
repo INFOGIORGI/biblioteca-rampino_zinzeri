@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <title>Gestione Biblioteca</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Digitale</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Biblioteca Digitale</h1>
-    <a href="/add_book">Aggiungi un libro</a> |
-    <a href="/view_books">Visualizza libri</a> |
-    <form action="/search" method="GET">
-        <input type="text" name="query" placeholder="Cerca un libro...">
-        <button type="submit">Cerca</button>
-    </form>
+    <h1>Benvenuto nella Biblioteca Digitale</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('add_book') }}">Aggiungi un libro</a></li>
+            <li><a href="{{ url_for('view_books') }}">Visualizza libri</a></li>
+            <li><a href="{{ url_for('search') }}">Cerca un libro</a></li>
+        </ul>
+    </nav>
 </body>
 </html>

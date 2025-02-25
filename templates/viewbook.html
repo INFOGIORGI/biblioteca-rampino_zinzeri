@@ -1,17 +1,35 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <title>Elenco Libri</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libri Disponibili</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Elenco Libri</h1>
-    <a href="/">Torna alla home</a> |
-    <a href="/sort/titolo">Ordina per Titolo</a> |
-    <a href="/sort/autore">Ordina per Autore</a>
-    <ul>
-        {% for book in books %}
-            <li>{{ book['titolo'] }} - ISBN: {{ book['isbn'] }}</li>
-        {% endfor %}
-    </ul>
+    <h1>Libri Disponibili</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Titolo</th>
+                <th>Autore</th>
+                <th>Anno</th>
+                <th>ISBN</th>
+                <th>Genere</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book[1] }}</td>
+                <td>{{ book[2] }}</td>
+                <td>{{ book[3] }}</td>
+                <td>{{ book[4] }}</td>
+                <td>{{ book[5] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('index') }}">Torna alla Home</a>
 </body>
 </html>
