@@ -1,57 +1,114 @@
-import MySQLdb
+def createAutore(mysql):
+    cursor = mysql.connection.cursor()
 
-# Configurazione della connessione al database
-DB_CONFIG = {
-    'host': '138.41.20.102',  # Inserisci l'host del database
-    'port': 53306,   # Inserisci la porta del database
-    'user': '5di',
-    'password': 'colazzo',
-    'database': 'rampino_zinzeri'
-}
+    query = """
+    CREATE TABLE IF NOT EXISTS Autore(
+        Nome varchar (20) NOT NULL,
+        Cognome varchar(20) NOT NULL,
+        CF varchar(16), 
+        DataN date NOT NULL, 
+        DataM date,
+        
+        PRIMARY KEY (CF))
+        """
+    cursor.execute(query)
+    cursor.close()
+    
+    return
+        
+def createLibro(mysql):
+    cursor = mysql.connection.cursor()
 
-def create_tables():
-    try:
-        conn = MySQLdb.connect(**DB_CONFIG)
-        cursor = conn.cursor()
+    query = """
+    CREATE TABLE IF NOT EXISTS Libro(
+        ISBN varchar(13),
+        Titolo varchar (50) NOT NULL,
+        Genere varchar (20) NOT NULL,
+        Prezzo float(2), 
+        Locazione varchar(20), 
+        Autore varchar(16), 
         
-        # Creazione tabella Autori
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Autori (
-                id_autore INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                cognome VARCHAR(255) NOT NULL
-            )
-        ''')
-        
-        # Creazione tabella Generi
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Generi (
-                id_genere INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(100) NOT NULL UNIQUE
-            )
-        ''')
-        
-        # Creazione tabella Libri
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS Libri (
-                id_libro INT AUTO_INCREMENT PRIMARY KEY,
-                titolo VARCHAR(255) NOT NULL,
-                id_autore INT,
-                data_pubblicazione YEAR,
-                isbn VARCHAR(20) UNIQUE,
-                id_genere INT,
-                quantita INT DEFAULT 1,
-                FOREIGN KEY (id_autore) REFERENCES Autori(id_autore) ON DELETE SET NULL,
-                FOREIGN KEY (id_genere) REFERENCES Generi(id_genere) ON DELETE SET NULL
-            )
-        ''')
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-        print("Tabelle create con successo.")
-    except MySQLdb.Error as e:
-        print(f"Errore durante la creazione delle tabelle: {e}")
+        PRIMARY KEY (ISBN), 
+        FOREIGN KEY (Autore) REFERENCES Autore (CF))
+        """
+    cursor.execute(query)
+    cursor.close()
 
-if __name__ == "__main__":
-    create_tables()
+    return
+
+def addLibro(mysql,isbn,titolo,genere,prezzo,locazione,autore):
+    cursor = mysql.connection.cursor()
+    
+    query = "SELECT * FROM Autore WHERE CF = %s"
+    cursor.execute(query, (autore,))
+    ris = cursor.fetchall()
+    
+    if len(ris)==0:
+        return False
+
+    prezzo = None if prezzo == "" else prezzo
+    
+    query = """
+    INSERT INTO Libro 
+    VALUES (%s,%s,%s,%s,%s,%s)
+    """
+    
+    cursor.execute(query, (isbn,titolo,genere,prezzo,locazione,autore))
+    mysql.connection.commit()
+    
+    cursor.close()
+    return True
+
+def addAutore(mysql,nome,cognome,cf,ddn,ddm):
+    cursor = mysql.connection.cursor()
+    
+    query = "SELECT * FROM Autore WHERE CF = %s"
+    cursor.execute(query, (cf,))
+    ris = cursor.fetchall()
+    
+    if len(ris)!=0:
+        return False
+
+    ddm = None if ddm == "" else ddm
+    
+    query = """
+    INSERT INTO Autore 
+    VALUES (%s,%s,%s,%s,%s)
+    """
+    
+    cursor.execute(query, (nome,cognome,cf,ddn,ddm))
+    mysql.connection.commit()
+    cursor.close()
+    return True
+
+def catalogo(mysql,query, params):
+    cursor = mysql.connection.cursor()
+    cursor.execute(query, params)
+    libri = cursor.fetchall()
+    cursor.close()
+    return libri
+
+def getGeneri(mysql):
+    query_generi = "SELECT DISTINCT Genere FROM Libro"
+    cursor = mysql.connection.cursor()
+    cursor.execute(query_generi)
+    generi = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    return generi
+
+def getAutore(mysql,cf):
+    cursor = mysql.connection.cursor()
+    query_autore = "SELECT * FROM Autore WHERE CF = %s"
+    cursor.execute(query_autore, (cf,))
+    autore = cursor.fetchone()
+    cursor.close()
+    return autore
+
+def getLibriAutore(mysql,cf):
+    cursor = mysql.connection.cursor()
+    query_libri = "SELECT * FROM Libro WHERE Autore = %s"
+    cursor.execute(query_libri, (cf,))
+    libri_autore = cursor.fetchall()
+    cursor.close()
+    return libri_autore
+

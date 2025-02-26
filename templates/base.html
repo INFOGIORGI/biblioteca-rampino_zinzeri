@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block titolo %}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <nav>
+    <a href="/" {% if request.endpoint=='home' %}class="active" {% endif %}>Home</a>
+    <a href="/searchresults/" {% if request.endpoint=='searchresults' %}class="active" {% endif %}>Catalogo</a>
+    <a href="/addbook/" {% if request.endpoint=='addbook' %}class="active" {% endif %}>Aggiungi Libro</a>
+    <a href="/addauthor/" {% if request.endpoint=='addauthor' %}class="active" {% endif %}>Aggiungi Autore</a>
+  </nav>
+
+  <h1>{% block intestazione %}{% endblock %}</h1>
+
+  <p>{% block corpo %}{% endblock %}</p>
+
+</body>
+</html>
+

@@ -1,37 +1,34 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aggiungi Libro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <h1>Aggiungi un nuovo libro</h1>
-    <form method="POST">
-        <label for="titolo">Titolo:</label>
-        <input type="text" id="titolo" name="titolo" required><br>
+{% extends 'base.html' %}
+{% block titolo %}
+Aggiungi libro
+{% endblock %}
 
-        <label for="autore">Autore:</label>
-        <input type="text" id="autore" name="autore" required><br>
+{% block intestazione %}Aggiungi libro{% endblock %}
+{% block corpo %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<h1>{{ message }}</h1>
+{% endfor %}
+{% endif %}
+{% endwith %}
 
-        <label for="anno">Anno di Pubblicazione:</label>
-        <input type="number" id="anno" name="anno" required><br>
-
-        <label for="isbn">ISBN:</label>
-        <input type="text" id="isbn" name="isbn" required><br>
-
-        <label for="genere">Genere:</label>
-        <select id="genere" name="genere" required>
-            <option value="Narrativa">Narrativa</option>
-            <option value="Saggistica">Saggistica</option>
-            <option value="Fantasy">Fantasy</option>
-            <option value="Giallo">Giallo</option>
-        </select><br>
-
-        <button type="submit">Aggiungi Libro</button>
-    </form>
-    <a href="{{ url_for('index') }}">Torna alla Home</a>
-</body>
-</html>
+<form action="/addbook/" method="POST">
+    <h3>ISBN</h3>
+    <input type="text" name="isbn">
+    <h3>Titolo</h3>
+    <input type="text" name="titolo">
+    <h3>Genere</h3>
+    <input type="text" name="genere">
+    <h3>Prezzo</h3>
+    <input type="number" name="prezzo">
+    <h3>Locazione</h3>
+    <input type="text" name="locazione">
+    <h3>Autore</h3>
+    <input type="text" name="autore">
+    <br>
+    <br>
+    <input type="submit" value="Aggiungi">
+</form>
+{% endblock %}
 
