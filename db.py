@@ -36,7 +36,7 @@ def createLibro(mysql):
 
     return
 
-def addLibro(mysql,isbn,titolo,genere,prezzo,locazione,autore):
+def addbook(mysql,isbn,titolo,genere,prezzo,locazione,autore):
     cursor = mysql.connection.cursor()
     
     query = "SELECT * FROM Autore WHERE CF = %s"
@@ -59,7 +59,7 @@ def addLibro(mysql,isbn,titolo,genere,prezzo,locazione,autore):
     cursor.close()
     return True
 
-def addAutore(mysql,nome,cognome,cf,ddn,ddm):
+def addauthor(mysql,nome,cognome,cf,ddn,ddm):
     cursor = mysql.connection.cursor()
     
     query = "SELECT * FROM Autore WHERE CF = %s"
@@ -81,7 +81,7 @@ def addAutore(mysql,nome,cognome,cf,ddn,ddm):
     cursor.close()
     return True
 
-def catalogo(mysql,query, params):
+def searchresults(mysql,query, params):
     cursor = mysql.connection.cursor()
     cursor.execute(query, params)
     libri = cursor.fetchall()
