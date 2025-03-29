@@ -1,104 +1,138 @@
-DROP TABLE IF EXISTS Libri;
-DROP TABLE IF EXISTS Autori;
-DROP TABLE IF EXISTS Utente;
+DROP TABLE IF EXISTS Tessera;
 DROP TABLE IF EXISTS Prestiti;
-DROP TABLE IF EXISTS Catalogo;
-DROP TABLE IF EXISTS Produzione;
+DROP TABLE IF EXISTS Inventario;
+DROP TABLE IF EXISTS Utenti;
+DROP TABLE IF EXISTS Autorato;
+DROP TABLE IF EXISTS Autori;
+DROP TABLE IF EXISTS Libri;
 
-CREATE TABLE IF NOT EXISTS Autori (
-    id_autore INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(100),
-    cognome VARCHAR(100),
-    data_nascita DATE,
-    nazionalita VARCHAR(50),
-    biografia VARCHAR(255)
+
+CREATE TABLE IF NOT EXISTS Autori(
+    ISNI CHAR(16) PRIMARY KEY,
+    Nome VARCHAR(32) NOT NULL,
+    Cognome VARCHAR(32) NOT NULL,
+    DataNascita DATE NOT NULL,
+    DataMorte DATE
 );
 
-CREATE TABLE IF NOT EXISTS Libri (
-    id_libro INT PRIMARY KEY AUTO_INCREMENT,
-    titolo VARCHAR(255),
-    id_autore INT,
-    data_pubblicazione DATE,
-    isbn VARCHAR(20),
-    prezzo DECIMAL(10, 2),
-    quantita INT,
-    FOREIGN KEY (id_autore) REFERENCES Autori(id_autore)
+CREATE TABLE IF NOT EXISTS  Libri(
+    ISBN CHAR(13) PRIMARY KEY,
+    Titolo VARCHAR(32) NOT NULL,
+    Categoria VARCHAR(32) NOT NULL,
+    NumCopie INT DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS Utente (
-    id_utente INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(100),
-    cognome VARCHAR(100),
-    email VARCHAR(100),
-    telefono VARCHAR(15),
-    indirizzo VARCHAR(255),
-    data_nascita DATE,
-    eta INT
+CREATE TABLE IF NOT EXISTS  Autorato(
+    ISNI CHAR(16) NOT NULL,
+    ISBN CHAR(13) NOT NULL,
+
+    PRIMARY KEY(ISNI, ISBN),
+    FOREIGN KEY (ISNI) REFERENCES Autori(ISNI),
+    FOREIGN KEY (ISBN) REFERENCES Libri(ISBN)
 );
 
-CREATE TABLE IF NOT EXISTS Prestiti (
-    id_prestito INT PRIMARY KEY AUTO_INCREMENT,
-    id_utente INT,
-    id_libro INT,
-    data_prestito DATE,
-    data_restituzione DATE,
-    FOREIGN KEY (id_utente) REFERENCES Utente(id_utente),
-    FOREIGN KEY (id_libro) REFERENCES Libri(id_libro)
+CREATE TABLE IF NOT EXISTS  Utenti(
+    CF CHAR(16) PRIMARY KEY,
+    Nome VARCHAR(32) NOT NULL,
+    Cognome VARCHAR(32) NOT NULL,
+    Email VARCHAR(32) NOT NULL,
+    Telefono VARCHAR(16) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Catalogo (
-    id_libro INT PRIMARY KEY,
-    sezione VARCHAR(255),
-    posizione INT,
-    disponibile BOOLEAN,
-    FOREIGN KEY (id_libro) REFERENCES Libri(id_libro)
+CREATE TABLE IF NOT EXISTS  Inventario(
+    IDL INT NOT NULL AUTO_INCREMENT,
+    ISBN CHAR(13) NOT NULL,
+    X INT NOT NULL,
+    Y INT NOT NULL,
+    Z INT NOT NULL,
+
+    PRIMARY KEY (IDL),
+    FOREIGN KEY (ISBN) REFERENCES Libri(ISBN)
 );
 
-CREATE TABLE IF NOT EXISTS Produzione (
-    id_libro INT,
-    id_autore INT,
-    PRIMARY KEY (id_libro, id_autore),
-    FOREIGN KEY (id_libro) REFERENCES Libri(id_libro),
-    FOREIGN KEY (id_autore) REFERENCES Autori(id_autore)
+CREATE TABLE IF NOT EXISTS  Prestiti(
+    DataInizio DATE NOT NULL,
+    DataRestituzione DATE,
+    DataScadenza DATE NOT NULL,
+    CF CHAR(16) NOT NULL,
+    IDL INT NOT NULL,
+
+    PRIMARY KEY (DataInizio, CF, IDL),
+    FOREIGN KEY (CF) REFERENCES Utenti (CF),
+    FOREIGN KEY (IDL) REFERENCES Inventario(IDL)
+);
+
+CREATE TABLE IF NOT EXISTS  Tessera(
+    CF CHAR(16) PRIMARY KEY,
+    Nprestiti INT NOT NULL,
+    DataScadenza DATE NOT NULL,
+    Username VARCHAR(32) NOT NULL,
+    Pwd VARCHAR(32) NOT NULL,
+    IsAdmin TINYINT(1) NOT NULL,
+
+    FOREIGN KEY (CF) REFERENCES Utenti(CF)
 );
 
 
--- Inserimento Autori
-INSERT INTO Autori (nome, cognome, data_nascita, nazionalita, biografia) VALUES
-('Dante', 'Alighieri', '1265-05-21', 'Italiana', 'Poeta italiano, autore della Divina Commedia.'),
-('William', 'Shakespeare', '1564-04-23', 'Inglese', 'Drammaturgo e poeta inglese.'),
-('Jane', 'Austen', '1775-12-16', 'Inglese', 'Scrittrice inglese di romanzi.'),
-('Lev', 'Tolstoj', '1828-09-09', 'Russo', 'Autore di Guerra e Pace.');
+-- Tabella Autori
+INSERT INTO Autori (ISNI, Nome, Cognome, DataNascita, DataMorte)
+VALUES 
+('0000000121464392', 'Alessandro', 'Manzoni', '1785-03-07', '1873-05-22'),
+('0000000121456321', 'Giovanni', 'Verga', '1840-09-02', '1922-01-27'),
+('0000000121459383', 'Italo', 'Calvino', '1923-10-15', '1985-09-19'),
+('0000000121452790', 'Umberto', 'Eco', '1932-01-05', '2016-02-19'),
+('0000000121467210', 'Gabriele', "D'Annunzio", '1863-03-12', '1938-03-01');
 
--- Inserimento Libri
-INSERT INTO Libri (titolo, id_autore, data_pubblicazione, isbn, prezzo, quantita) VALUES
-('La Divina Commedia', 1, '1320-01-01', '978-1234567890', 25.50, 10),
-('Amleto', 2, '1603-01-01', '978-2345678901', 15.75, 5),
-('Orgoglio e Pregiudizio', 3, '1813-01-01', '978-3456789012', 20.00, 7),
-('Guerra e Pace', 4, '1869-01-01', '978-4567890123', 35.99, 3);
+-- Tabella Libri
+INSERT INTO Libri (ISBN, Titolo, Categoria, NumCopie)
+VALUES 
+('9788804498122', 'I Promessi Sposi', 'Romanzo Storico', 10),
+('9788804536571', 'Il Nome della Rosa', 'Romanzo Storico', 8),
+('9788804671531', 'Il Barone Rampante', 'Narrativa', 5),
+('9788804725525', 'Mastro-don Gesualdo', 'Romanzo', 6),
+('9788804778472', 'Il Piacere', 'Narrativa', 4);
 
--- Inserimento Utenti
-INSERT INTO Utente (nome, cognome, email, telefono, indirizzo, data_nascita, eta) VALUES
-('Mario', 'Rossi', 'mario.rossi@email.com', '1234567890', 'Via Roma 1, Milano', '1990-05-10', 34),
-('Laura', 'Bianchi', 'laura.bianchi@email.com', '0987654321', 'Corso Venezia 5, Torino', '1985-07-20', 39),
-('Giovanni', 'Verdi', 'giovanni.verdi@email.com', '1122334455', 'Piazza Duomo 10, Napoli', '2000-01-15', 24);
+-- Tabella Autorato
+INSERT INTO Autorato (ISNI, ISBN)
+VALUES 
+('0000000121464392', '9788804498122'),
+('0000000121456321', '9788804725525'),
+('0000000121459383', '9788804671531'),
+('0000000121452790', '9788804536571'),
+('0000000121467210', '9788804778472');
 
--- Inserimento Prestiti
-INSERT INTO Prestiti (id_utente, id_libro, data_prestito, data_restituzione) VALUES
-(1, 1, '2024-02-01', '2024-02-20'),
-(2, 3, '2024-01-15', '2024-02-10'),
-(3, 2, '2024-02-05', NULL);
+-- Tabella Utenti
+INSERT INTO Utenti (CF, Nome, Cognome, Email, Telefono)
+VALUES 
+('RSSMRA85M01H501Z', 'Mario', 'Rossi', 'mario.rossi@example.com', '3281234567'),
+('VRDLGI84C10H501L', 'Luigi', 'Verdi', 'luigi.verdi@example.com', '3279876543'),
+('BNCLRA80A01H501X', 'Lara', 'Bianchi', 'lara.bianchi@example.com', '3291239876'),
+('MNTGPP85L20H501W', 'Giuseppe', 'Monti', 'giuseppe.monti@example.com', '3204567890'),
+('CLDMLA88E10H501K', 'Michela', 'Colombo', 'michela.colombo@example.com', '3216549870');
 
--- Inserimento Catalogo
-INSERT INTO Catalogo (id_libro, sezione, posizione, disponibile) VALUES
-(1, 'Letteratura Italiana', 101, TRUE),
-(2, 'Teatro Inglese', 202, FALSE),
-(3, 'Romanzi Classici', 303, TRUE),
-(4, 'Letteratura Russa', 404, TRUE);
+-- Tabella Inventario
+INSERT INTO Inventario (ISBN, X, Y, Z)
+VALUES 
+('9788804498122', 1, 1, 1),
+('9788804536571', 1, 1, 2),
+('9788804671531', 1, 2, 1),
+('9788804725525', 2, 1, 1),
+('9788804778472', 2, 2, 1);
 
--- Inserimento Produzione
-INSERT INTO Produzione (id_libro, id_autore) VALUES
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4);
+-- Tabella Prestiti
+INSERT INTO Prestiti (DataInizio, DataRestituzione, DataScadenza, CF, IDL)
+VALUES 
+('2025-01-10', '2025-01-20', '2025-01-31', 'RSSMRA85M01H501Z', 1),
+('2025-02-01', NULL, '2025-02-28', 'VRDLGI84C10H501L', 2),
+('2025-02-05', '2025-02-15', '2025-02-28', 'BNCLRA80A01H501X', 3),
+('2025-03-01', NULL, '2025-03-31', 'MNTGPP85L20H501W', 4),
+('2025-03-10', '2025-03-20', '2025-03-31', 'CLDMLA88E10H501K', 5);
+
+-- Tabella Tessera
+INSERT INTO Tessera (CF, Nprestiti, DataScadenza, username, Pwd, IsAdmin)
+VALUES 
+('RSSMRA85M01H501Z', 5, '2026-12-31', 'mrossi', 'password1', 0),
+('VRDLGI84C10H501L', 3, '2026-12-31', 'lverdi', 'password2', 0),
+('BNCLRA80A01H501X', 4, '2026-12-31', 'lbianchi', 'password3', 0),
+('MNTGPP85L20H501W', 2, '2026-12-31', 'gmonti', 'password4', 0),
+('CLDMLA88E10H501K', 6, '2026-12-31', 'mcolombo', 'password5', 1);
