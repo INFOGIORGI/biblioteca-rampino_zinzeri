@@ -1,12 +1,12 @@
 from flask import Flask, request, render_template, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
-from datetime import timedelta, datetime
-from dateutil.relativedelta import relativedelta
 import bcrypt
-import db
 import os
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
+
+# Configurazione MySQL
 app.config['MYSQL_HOST'] = "138.41.20.102"
 app.config['MYSQL_PORT'] = 53306
 app.config['MYSQL_USER'] = "5di"
@@ -14,22 +14,74 @@ app.config['MYSQL_PASSWORD'] = "colazzo"
 app.config['MYSQL_DB'] = "rampino_zinzeri"
 mysql = MySQL(app)
 
-# Genera una secret key casuale (consigliato):
+# Configurazione sessioni
 app.config['SECRET_KEY'] = os.urandom(24)
-
-app.permanent_session_lifetime = timedelta(days=30) # Session Life Time
-app.config['SESSION_TYPE'] = "filesystem"  # Session Storage Type
+app.permanent_session_lifetime = timedelta(days=30)
 
 @app.route('/')
 def home():
-    libri = db.getLibriPerKey(mysql, "", "")
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Libri")
+    libri = cur.fetchall()
+    cur.close()
     return render_template('index.html', libri=libri)
 
-@app.route('/librarian', methods=['GET', 'POST'])
-def librarian():
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if request.method == 'POST':
-        form_type = request.form['form_type']
-        if form_type == 'aggiunta_libro':
+        username = request.form['username']
+        password = request.form['password'].encode('utf-8')
+        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')  # Convert to string
+        cf = request.form['CF']
+        nome = request.form['nome']
+        cognome = request.form['cognome']
+        email = request.form['email']
+        telefono = request.form['telefono']
+
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO Utenti (CF, Nome, Cognome, Email, Telefono) VALUES (%s, %s, %s, %s, %s)", 
+                    (cf, nome, cognome, email, telefono))
+        cur.execute("INSERT INTO Tessera (CF, Nprestiti, DataScadenza, Username, Pwd, IsAdmin) VALUES (%s, %s, %s, %s, %s, %s)", 
+                    (cf, 0, (datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d'), username, hashed_password, 0))
+        mysql.connection.commit()
+        cur.close()
+
+        flash("Registrazione completata con successo!")
+        return redirect(url_for('home'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password'].encode('utf-8')
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT Pwd, CF, IsAdmin FROM Tessera WHERE Username = %s", (username,))
+        user = cur.fetchone()
+        cur.close()
+
+        if user and bcrypt.checkpw(password, user[0].encode('utf-8')):
+            session['user'] = username
+            session['cf'] = user[1]
+            session['isAdmin'] = user[2]  # Aggiungi sessione isAdmin
+            flash("Login effettuato con successo!")
+            return redirect(url_for('home'))
+        else:
+            flash("Credenziali errate.")
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("Logout effettuato.")
+    return redirect(url_for('home'))
+
+#route per aggiungere dei libri
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
+    if 'user' in session:  # Verifica che l'utente sia loggato
+        if request.method == 'POST':
             ISBN = request.form['ISBN']
             titolo = request.form['titolo']
             categoria = request.form['categoria']
@@ -37,100 +89,58 @@ def librarian():
             x = request.form['x']
             y = request.form['y']
             z = request.form['z']
-            ritorno = db.addLibro(mysql, ISBN, titolo, categoria, autori, x, y, z)
-            if ritorno == 0:
-                flash("Esiste già un libro in questa posizione")
-            elif ritorno == 2:
-                flash("Il libro è stato memorizzato per la prima volta")
-            return redirect(url_for('librarian'))
-        elif form_type == 'rinnovo_tessera':
-            username = request.form['username']
-            if not db.rinnovaTessera(mysql, username):
-                flash("Username inesistente")
-            else:
-                flash("Tessera aggiornata con successo")
-            return redirect(url_for('librarian'))
-        elif form_type == 'aggiunta_prestito':
-            x = request.form['x']
-            y = request.form['y']
-            z = request.form['z']
-            idl = db.getIDL(mysql, x, y, z)
 
-            if idl == "non disponibile":
-                flash("Libro già in prestito")
-            elif idl == "non esistente":
-                flash(f"Non esiste nessun libro in posizione {x}, {y}, {z}")
-            else:
-                cf = request.form['CF']
-                dataInizio = request.form['dataInizio']
-                dataScadenza = datetime.now() + relativedelta(months=1)
-                if db.aggiungiPrestito(mysql, cf, dataInizio, dataScadenza, idl):
-                    flash("Prestito aggiunto con successo")
-                else:
-                    flash("Codice fiscale inesistente")
-            return redirect(url_for('librarian'))
-    
-    return render_template('librarian.html')
+            # Aggiungi il libro nel database
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO Libri (ISBN, titolo, categoria, autori, x, y, z) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                        (ISBN, titolo, categoria, autori, x, y, z))
+            mysql.connection.commit()
+            cur.close()
 
-@app.route('/users')
+            flash("Libro aggiunto con successo!")
+            return redirect(url_for('home'))  # Reindirizza alla home page
+        return render_template('add_book.html')  # Rende la pagina con il form
+    else:
+        flash("Devi essere loggato per aggiungere un libro.")
+        return redirect(url_for('login'))  # Se l'utente non è loggato, lo rimanda alla pagina di login
+
+
+# route per la ricerca dei libri
+@app.route('/users', methods=['GET'])
 def users():
+    # Recupera i parametri dalla query string
     key = request.args.get('key', '')
     genere = request.args.get('genere', '')
-    ordina = request.args.get('ordina', '')  # "titolo" o "autore"
+    ordina = request.args.get('ordina', 'titolo')
 
-    libri = db.getLibriPerKey(mysql, key, genere)
-    numero_libri = db.getStatisticheGenere(mysql, genere)
+    # Costruisci la query SQL dinamicamente in base ai parametri
+    query = "SELECT * FROM Libri WHERE Titolo LIKE %s OR ISBN LIKE %s"
+    params = ['%' + key + '%', '%' + key + '%']
+    
+    if genere:
+        query += " AND Categoria LIKE %s"
+        params.append('%' + genere + '%')
+    
+    if ordina == 'autore':
+        query += " ORDER BY Autori"
+    else:
+        query += " ORDER BY Titolo"
 
-    if ordina == "titolo":
-        libri = db.ordinaLibri(libri, tipo=True)
-    elif ordina == "autore":
-        libri = db.ordinaLibri(libri, tipo=False)
+    # Esegui la query e ottieni i risultati
+    cur = mysql.connection.cursor()
+    cur.execute(query, tuple(params))
+    libri = cur.fetchall()
+    
+    # Conta il numero di libri nel genere selezionato
+    numero_libri = None
+    if genere:
+        cur.execute("SELECT COUNT(*) FROM Libri WHERE Categoria LIKE %s", ('%' + genere + '%',))
+        numero_libri = cur.fetchone()[0]
+    
+    cur.close()
 
-    return render_template('users.html', libri=libri, numero_libri=numero_libri, genere_selezionato=genere, key_selezionata=key, ordina=ordina)
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        cf = request.form['CF']
-        password_hashed = bcrypt.hashpw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
-        if db.registraUtente(mysql, request.form['nome'], request.form['cognome'], cf, request.form['email'], request.form['telefono'], username, password_hashed):
-            session['user'] = username
-            flash(f"Successfully registered username - {session['user']}.")
-            session['isAdmin'] = False
-        else:
-            flash(f"L'utente con codice fiscale: {cf} è già registrato.")
-            return redirect(url_for("register"))
-        return redirect(url_for("home"))
-    return render_template('register.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def logIn():
-    if request.method == "POST":
-        username = request.form['username']
-        risultato = db.getHashedPw(mysql, username)
-        if risultato == 0:
-            flash(f"L'username {username} non esiste")
-        elif risultato == 2:
-            flash(f"La tessera è scaduta, rivolgersi al bibliotecario per rinnovarla")
-        else:
-            if bcrypt.checkpw(request.form['password'].encode('utf-8'), risultato.encode('utf-8')):
-                session['user'] = username
-                flash(f"Log in avvenuto con successo, bentornato {username}")
-                session['isAdmin'] = db.isAdmin(mysql, username)
-                return redirect(url_for("home"))
-            else:
-                flash(f"Password errata")
-                return redirect(url_for("logIn"))
-    return render_template('login.html')
-
-@app.route('/logout')
-def logOut():
-    session.clear()
-    flash("Log out effettuato con successo")
-    response = redirect(url_for('home'))
-    response.set_cookie('session', '', expires=0)
-    return response
+    # Renderizza il template passando i risultati e i parametri di ricerca
+    return render_template('users.html', libri=libri, key_selezionata=key, genere_selezionato=genere, ordina=ordina, numero_libri=numero_libri)
 
 if __name__ == '__main__':
     app.run(debug=True)

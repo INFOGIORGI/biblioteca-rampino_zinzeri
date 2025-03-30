@@ -1,10 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Utenti - Biblioteca{% endblock %}
+{% block title %}Cerca Libri - Biblioteca{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Cerca Libri</h1>
-    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h1 class="mb-4 text-center">Cerca Libri</h1>
+
+    <!-- Form di ricerca -->
     <form method="GET" action="{{ url_for('users') }}" class="mb-3">
         <div class="form-group">
             <input type="text" name="key" class="form-control mb-2" placeholder="Titolo o ISBN" value="{{ key_selezionata }}">
@@ -14,8 +26,8 @@
         </div>
         <div class="form-group">
             <select name="ordina" class="form-control mb-2">
-                <option value="titolo" {% if ordina=='titolo' %}selected{% endif %}>Titolo</option>
-                <option value="autore" {% if ordina=='autore' %}selected{% endif %}>Autore</option>
+                <option value="titolo" {% if ordina == 'titolo' %}selected{% endif %}>Titolo</option>
+                <option value="autore" {% if ordina == 'autore' %}selected{% endif %}>Autore</option>
             </select>
         </div>
         <button type="submit" class="btn btn-success">Cerca</button>
@@ -26,31 +38,39 @@
     {% endif %}
 
     <h2 class="mt-4">Risultati:</h2>
-    <ul class="list-group">
-        {% for libro in libri %}
-            <li class="list-group-item">
-                <!-- Sezione informazioni libro -->
-                <div>
-                    <strong>{{ libro.Titolo }}</strong> - ISBN: {{ libro.ISBN }} - Genero: {{ libro.Categoria }} - Copie: {{ libro.NumCopie }} - Autori: {{ libro.Autori }}
+
+    <!-- Visualizza i libri in una griglia -->
+    <div class="container">
+        <div class="row">
+            {% for libro in libri %}
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ libro.Titolo }}</h5> <!-- Titolo -->
+                            <h5 class="card-title">{{ libro[1] }}</h5>  <!-- Titolo -->
+                            <p class="card-text">
+                                <strong>ISBN:</strong> {{ libro[0] }}<br>
+                                <strong>Genere:</strong> {{ libro[2] }}<br>
+                                <strong>Copie Disponibili:</strong> {{ libro[3] }}<br>
+                                <strong>Autori:</strong> {{ libro[5] }}
+                            </p>                            
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-{{ libro.ISBN }}">
+                                Mostra Riassunto
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                
-                <!-- Bottone posizionato sotto -->
-                <div class="mt-2">
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-{{ libro.ISBN }}">
-                        Mostra Riassunto
-                    </button>
-                </div>
-            
+
                 <!-- Modale per il riassunto -->
-                <div class="modal fade" id="modal-{{ libro.ISBN }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="modal-{{ libro.ISBN }}" tabindex="-1" aria-labelledby="modalLabel-{{ libro.ISBN }}" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Riassunto di "{{ libro.Titolo }}"</h5>
+                                <h5 class="modal-title" id="modalLabel-{{ libro.ISBN }}">Riassunto di "{{ libro.Titolo }}"</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                {{ libro.Riassunto }}
+                                {{ libro[4] }} <!-- Riassunto -->
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
@@ -58,9 +78,8 @@
                         </div>
                     </div>
                 </div>
-            </li>
-        
-        
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </div>
+    </div>
+
 {% endblock %}

@@ -14,41 +14,46 @@
     {% endfor %}
 {% endif %}
 {% endwith %}
-<h1 class="mb-4">Lista dei Libri</h1>
-<ul class="list-group">
-    {% for libro in libri %}
-      <li class="list-group-item">
-        <!-- Sezione informazioni libro -->
-        <div>
-            <strong>{{ libro.Titolo }}</strong> - ISBN: {{ libro.ISBN }} - Genero: {{ libro.Categoria }} - Copie: {{ libro.NumCopie }} - Autori: {{ libro.Autori }}
-        </div>
-        
-        <!-- Bottone posizionato sotto -->
-        <div class="mt-2">
-            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-{{ libro.ISBN }}">
-                Mostra Riassunto
-            </button>
-        </div>
-    
-        <!-- Modale per il riassunto -->
-        <div class="modal fade" id="modal-{{ libro.ISBN }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Riassunto di "{{ libro.Titolo }}"</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        {{ libro.Riassunto }}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </li>
-    {% endfor %}
-</ul>
+<h1 class="mb-4 text-center">Lista dei Libri</h1>
+<div class="container">
+    <div class="row">
+        {% for libro in libri %}
+          <div class="col-md-6">
+              <div class="card mb-3">
+                  <div class="card-body">
+                      <h5 class="card-title">{{ libro[1] }}</h5> <!-- Titolo -->
+                      <p class="card-text">
+                          <strong>ISBN:</strong> {{ libro[0] }}<br>
+                          <strong>Genere:</strong> {{ libro[2] }}<br>
+                          <strong>Copie Disponibili:</strong> {{ libro[3] }}<br>
+                          <strong>Autori:</strong> {{ libro[5] }}
+                      </p>
+                      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-{{ libro[0] }}">
+                          Mostra Riassunto
+                      </button>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Modale per il riassunto -->
+          <div class="modal fade" id="modal-{{ libro[0] }}" tabindex="-1" aria-labelledby="modalLabel-{{ libro[0] }}" aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="modalLabel-{{ libro[0] }}">Riassunto di "{{ libro[1] }}"</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                          {{ libro[4] }} <!-- Riassunto -->
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock %}
