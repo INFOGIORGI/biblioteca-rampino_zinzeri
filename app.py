@@ -127,7 +127,7 @@ def users():
         params.append('%' + genere + '%')
     
     if ordina == 'autore':
-        query += " ORDER BY Autori"
+        query += " ORDER BY Autore"
     else:
         query += " ORDER BY Titolo"
 
