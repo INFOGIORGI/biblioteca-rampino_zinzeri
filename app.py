@@ -28,8 +28,8 @@ def home():
 @app.route('/librarian', methods=['GET', 'POST'])
 def librarian():
     if request.method == 'POST':
-        form_type=request.form['form_type']
-        if form_type == 'registrazione_utente':
+        form_type = request.form['form_type']
+        if form_type == 'aggiunta_libro':
             ISBN = request.form['ISBN']
             titolo = request.form['titolo']
             categoria = request.form['categoria']
@@ -37,36 +37,34 @@ def librarian():
             x = request.form['x']
             y = request.form['y']
             z = request.form['z']
-            ritorno=db.addLibro(mysql, ISBN, titolo, categoria,autori, x, y, z)
-            if ritorno==0:
+            ritorno = db.addLibro(mysql, ISBN, titolo, categoria, autori, x, y, z)
+            if ritorno == 0:
                 flash("Esiste già un libro in questa posizione")
-                return redirect(url_for('librarian'))
-            elif ritorno==2:
+            elif ritorno == 2:
                 flash("Il libro è stato memorizzato per la prima volta")
-            
             return redirect(url_for('librarian'))
-        elif form_type == 'rinnovamento_tessera':
-            username=request.form['username']
+        elif form_type == 'rinnovo_tessera':
+            username = request.form['username']
             if not db.rinnovaTessera(mysql, username):
                 flash("Username inesistente")
             else:
                 flash("Tessera aggiornata con successo")
             return redirect(url_for('librarian'))
-        elif form_type == 'aggiunzione_prestito':
-            x= request.form['x']
-            y=request.form['y']
-            z=request.form['z']
-            idl=db.getIDL(mysql, x,y,z)
+        elif form_type == 'aggiunta_prestito':
+            x = request.form['x']
+            y = request.form['y']
+            z = request.form['z']
+            idl = db.getIDL(mysql, x, y, z)
 
             if idl == "non disponibile":
                 flash("Libro già in prestito")
-            elif idl== "non esistente":
+            elif idl == "non esistente":
                 flash(f"Non esiste nessun libro in posizione {x}, {y}, {z}")
             else:
-                cf= request.form['CF']
-                dataInizio= request.form['dataInizio']
-                dataScadenza= request.args.get('dataScadenza', datetime.now()+relativedelta(months=1))
-                if db.aggiungiprestito(mysql, cf, dataInizio, dataScadenza, idl):
+                cf = request.form['CF']
+                dataInizio = request.form['dataInizio']
+                dataScadenza = datetime.now() + relativedelta(months=1)
+                if db.aggiungiPrestito(mysql, cf, dataInizio, dataScadenza, idl):
                     flash("Prestito aggiunto con successo")
                 else:
                     flash("Codice fiscale inesistente")
@@ -80,27 +78,23 @@ def users():
     genere = request.args.get('genere', '')
     ordina = request.args.get('ordina', '')  # "titolo" o "autore"
 
-    # Recupera libri in base al genere e titolo o all'ISBN
     libri = db.getLibriPerKey(mysql, key, genere)
     numero_libri = db.getStatisticheGenere(mysql, genere)
 
-
-
-    # Ordina i libri se richiesto (titolo o autore)
     if ordina == "titolo":
-        libri = db.ordinaLibri(libri, tipo=True)  # Ordinamento per titolo
+        libri = db.ordinaLibri(libri, tipo=True)
     elif ordina == "autore":
-        libri = db.ordinaLibri(libri, tipo=False)  # Ordinamento per autore
+        libri = db.ordinaLibri(libri, tipo=False)
 
-    return render_template('users.html', libri=libri, numero_libri=numero_libri, genere_selezionato=genere, key_selezionata =key, ordina=ordina)
-
+    return render_template('users.html', libri=libri, numero_libri=numero_libri, genere_selezionato=genere, key_selezionata=key, ordina=ordina)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
-        cf=request.form['CF']
-        if db.registraUtente(mysql, request.form['nome'], request.form['cognome'], cf, request.form['email'], request.form['telefono'], username, bcrypt.hashpw(request.form['password'].encode('utf-8'), bcrypt.gensalt())):
+        cf = request.form['CF']
+        password_hashed = bcrypt.hashpw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
+        if db.registraUtente(mysql, request.form['nome'], request.form['cognome'], cf, request.form['email'], request.form['telefono'], username, password_hashed):
             session['user'] = username
             flash(f"Successfully registered username - {session['user']}.")
             session['isAdmin'] = False
@@ -112,36 +106,31 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def logIn():
-    if request.method=="POST":
-        username=request.form['username']
-        risultato=db.getHashedPw(mysql, username)
-        if risultato==0: flash(f"L'username {username} non esiste")
-        elif risultato==2: 
+    if request.method == "POST":
+        username = request.form['username']
+        risultato = db.getHashedPw(mysql, username)
+        if risultato == 0:
+            flash(f"L'username {username} non esiste")
+        elif risultato == 2:
             flash(f"La tessera è scaduta, rivolgersi al bibliotecario per rinnovarla")
         else:
             if bcrypt.checkpw(request.form['password'].encode('utf-8'), risultato.encode('utf-8')):
-                session['user']=username
+                session['user'] = username
                 flash(f"Log in avvenuto con successo, bentornato {username}")
-                if db.isAdmin(mysql, username):
-                    session['isAdmin']=True
-                else:
-                    session['isAdmin']=False
+                session['isAdmin'] = db.isAdmin(mysql, username)
                 return redirect(url_for("home"))
             else:
-                flash(f"password errata")
+                flash(f"Password errata")
                 return redirect(url_for("logIn"))
-
     return render_template('login.html')
 
 @app.route('/logout')
 def logOut():
-    session.clear()  # Rimuove tutte le chiavi dalla sessione
+    session.clear()
     flash("Log out effettuato con successo")
     response = redirect(url_for('home'))
-    response.set_cookie('session', '', expires=0)  # Invalida il cookie di sessione
+    response.set_cookie('session', '', expires=0)
     return response
-
 
 if __name__ == '__main__':
     app.run(debug=True)
-
