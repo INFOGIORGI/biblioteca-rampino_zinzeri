@@ -75,43 +75,43 @@ CREATE TABLE IF NOT EXISTS Tessera(
 -- Inserimento dati in Autori
 INSERT INTO Autori (ISNI, Nome, Cognome, DataNascita, DataMorte)
 VALUES 
-('0000000121464392', 'Alessandro', 'Manzoni', '1785-03-07', '1873-05-22'),
-('0000000121456321', 'Giovanni', 'Verga', '1840-09-02', '1922-01-27'),
-('0000000121459383', 'Italo', 'Calvino', '1923-10-15', '1985-09-19'),
-('0000000121452790', 'Umberto', 'Eco', '1932-01-05', '2016-02-19'),
-('0000000121467210', 'Gabriele', "D'Annunzio", '1863-03-12', '1938-03-01'),
-('0000000121470000', 'Nuovo', 'Autore', '1975-06-15', NULL),
-('0000000121471000', 'Marco', 'Bianchi', '1980-08-22', NULL);
+('0000000987654321', 'Dante', 'Alighieri', '1265-05-21', '1321-09-14'),
+('0000000876543210', 'Francesco', 'Petrarca', '1304-07-20', '1374-07-19'),
+('0000000765432109', 'Ludovico', 'Ariosto', '1474-09-08', '1533-07-06'),
+('0000000654321098', 'Giovanni', 'Boccaccio', '1313-06-16', '1375-12-21'),
+('0000000543210987', 'Torquato', 'Tasso', '1544-03-11', '1595-04-25'),
+('0000000432109876', 'Niccolò', 'Machiavelli', '1469-05-03', '1527-06-21'),
+('0000000321098765', 'Giuseppe', 'Parini', '1729-05-23', '1799-08-15');
 
 -- Inserimento dati in Libri
 INSERT INTO Libri (ISBN, Titolo, Categoria, NumCopie, Riassunto, Autore)
 VALUES 
-('9788804498122', 'I Promessi Sposi', 'Romanzo Storico', 10, 'Un classico della letteratura italiana che narra la storia di Renzo e Lucia nel contesto della Lombardia del XVII secolo.', 'Alessandro Manzoni'),
-('9788804536571', 'Il Nome della Rosa', 'Romanzo Storico', 8, 'Un romanzo giallo ambientato in un monastero medievale, dove si indaga su una serie di misteriosi omicidi.', 'Umberto Eco'),
-('9788804671531', 'Il Barone Rampante', 'Narrativa', 5, 'La storia di un giovane nobile che decide di vivere sugli alberi per protesta contro le imposizioni della società.', 'Italo Calvino'),
-('9788804725525', 'Mastro-don Gesualdo', 'Romanzo', 6, 'Un romanzo verista che racconta la storia di un uomo che cerca di elevarsi socialmente attraverso il lavoro e il matrimonio.', 'Giovanni Verga'),
-('9788804778472', 'Il Piacere', 'Narrativa', 4, 'Un romanzo decadente che segue la vita di un giovane aristocratico e il suo amore per l’estetica e il lusso.', 'Gabriele Annunzio'),
-('9788804888888', 'I cambiamenti sociali', 'Saggio', 3, 'Un testo che esplora i cambiamenti sociali del XXI secolo e le loro implicazioni per il futuro.', 'Sconosciuto'),
-('9788804999999', 'La tecnologia', 'Narrativa', 2, 'Un romanzo moderno che analizza il rapporto tra tecnologia e umanità in un mondo sempre più connesso.', 'Marco Bianchi');
+('9788817000257', 'La Divina Commedia', 'Poesia', 15, 'Il viaggio di Dante attraverso Inferno, Purgatorio e Paradiso.', 'Dante Alighieri'),
+('9788817101234', 'Il Canzoniere', 'Poesia', 10, 'Una raccolta di poesie amorose dedicate a Laura.', 'Francesco Petrarca'),
+('9788817204567', 'Orlando Furioso', 'Epica', 12, 'Le avventure cavalleresche e fantastiche di Orlando.', 'Ludovico Ariosto'),
+('9788817307890', 'Decameron', 'Narrativa', 8, 'Cento novelle raccontate da un gruppo di giovani in fuga dalla peste.', 'Giovanni Boccaccio'),
+('9788817410123', 'Gerusalemme Liberata', 'Epica', 7, 'Un poema epico sulla prima crociata.', 'Torquato Tasso'),
+('9788817513456', 'Il Principe', 'Saggio', 6, 'Un trattato politico sulla natura del potere e del governo.', 'Niccolò Machiavelli'),
+('9788817616789', 'Odi', 'Poesia', 5, 'Una raccolta di poesie di carattere morale e civile.', 'Giuseppe Parini');
 
 -- Inserimento dati in Autorato
 INSERT INTO Autorato (ISNI, ISBN)
 VALUES 
-('0000000121464392', '9788804498122'),
-('0000000121456321', '9788804725525'),
-('0000000121459383', '9788804671531'),
-('0000000121452790', '9788804536571'),
-('0000000121467210', '9788804778472'),
-('0000000121470000', '9788804888888'),
-('0000000121471000', '9788804999999');
+('0000000987654321', '9788817000257'),
+('0000000876543210', '9788817101234'),
+('0000000765432109', '9788817204567'),
+('0000000654321098', '9788817307890'),
+('0000000543210987', '9788817410123'),
+('0000000432109876', '9788817513456'),
+('0000000321098765', '9788817616789');
 
 -- Inserimento dati in Inventario
 INSERT INTO Inventario (ISBN, X, Y, Z)
 VALUES 
-('9788804498122', 1, 1, 1),
-('9788804536571', 1, 1, 2),
-('9788804671531', 1, 2, 1),
-('9788804725525', 2, 1, 1),
-('9788804778472', 2, 2, 1),
-('9788804888888', 3, 1, 1),
-('9788804999999', 3, 2, 1);
+('9788817000257', 4, 2, 1),
+('9788817101234', 4, 2, 2),
+('9788817204567', 5, 1, 1),
+('9788817307890', 5, 2, 1),
+('9788817410123', 6, 1, 1),
+('9788817513456', 6, 2, 2),
+('9788817616789', 7, 1, 1);

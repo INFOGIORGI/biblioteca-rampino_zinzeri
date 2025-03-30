@@ -6,7 +6,7 @@
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       {% for message in messages %}
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
           {{ message }}
           <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
         </div>
@@ -14,38 +14,52 @@
     {% endif %}
   {% endwith %}
 
-  <div class="container mt-5">
-    <h1 class="mb-4">Aggiungi un Nuovo Libro</h1>
-    
-    <!-- Modulo per aggiungere un libro -->
-    <form method="POST" action="{{ url_for('add_book') }}" class="mb-3">
-      <div class="form-group">
-        <label for="ISBN">ISBN:</label>
-        <input type="text" name="ISBN" id="ISBN" class="form-control" placeholder="Inserisci ISBN" required><br>
-
-        <label for="titolo">Titolo:</label>
-        <input type="text" name="titolo" id="titolo" class="form-control" placeholder="Inserisci Titolo" required><br>
-
-        <label for="categoria">Categoria:</label>
-        <input type="text" name="categoria" id="categoria" class="form-control" placeholder="Inserisci Categoria" required><br>
-
-        <label for="autori">Autori (separati da virgola):</label>
-        <input type="text" name="autori" id="autori" class="form-control" placeholder="Inserisci Autori" required><br>
-
-        <label for="x">X:</label>
-        <input type="text" name="x" id="x" class="form-control" placeholder="X" required><br>
-
-        <label for="y">Y:</label>
-        <input type="text" name="y" id="y" class="form-control" placeholder="Y" required><br>
-
-        <label for="z">Z:</label>
-        <input type="text" name="z" id="z" class="form-control" placeholder="Z" required><br>
-
+  <div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-lg p-4" style="max-width: 600px; background-color: #f8f9fa; border-radius: 15px;">
+      <h2 class="text-center text-primary mb-4">Aggiungi Libro</h2>
+      <form method="POST" action="{{ url_for('add_book') }}" class="needs-validation" novalidate>
+        <div class="mb-3">
+          <label for="ISBN" class="form-label">ISBN:</label>
+          <input type="text" name="ISBN" id="ISBN" class="form-control border-primary" placeholder="Inserisci ISBN" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="titolo" class="form-label">Titolo:</label>
+          <input type="text" name="titolo" id="titolo" class="form-control border-primary" placeholder="Inserisci Titolo" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="categoria" class="form-label">Categoria:</label>
+          <input type="text" name="categoria" id="categoria" class="form-control border-success" placeholder="Inserisci Categoria" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="autori" class="form-label">Autori (separati da virgola):</label>
+          <input type="text" name="autori" id="autori" class="form-control border-success" placeholder="Inserisci Autori" required>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-4">
+            <label for="x" class="form-label">X:</label>
+            <input type="text" name="x" id="x" class="form-control border-info" placeholder="X" required>
+          </div>
+          <div class="col-md-4">
+            <label for="y" class="form-label">Y:</label>
+            <input type="text" name="y" id="y" class="form-control border-info" placeholder="Y" required>
+          </div>
+          <div class="col-md-4">
+            <label for="z" class="form-label">Z:</label>
+            <input type="text" name="z" id="z" class="form-control border-info" placeholder="Z" required>
+          </div>
+        </div>
+        
         <input type="hidden" name="form_type" value="aggiungi_libro">
-      </div>
-
-      <button type="submit" class="btn btn-primary">Aggiungi Libro</button>
-    </form>
+        
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-lg text-white" style="background-color: #17a2b8;">+ Aggiungi Libro</button>
+        </div>
+      </form>
+    </div>
   </div>
 
 {% endblock %}

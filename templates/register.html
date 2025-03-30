@@ -12,46 +12,44 @@
 {% endif %}
 {% endwith %}
 
-  <div class="container mt-5">
-    <h1 class="mb-4 text-center">Registrazione Utente</h1>
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <form method="POST" action="{{ url_for('register') }}" class="p-4 border rounded shadow-sm bg-light">
-                <div class="form-group mb-3">
-                    <label for="nome" class="form-label">Nome</label>
-                    <input type="text" name="nome" class="form-control" id="nome" placeholder="Nome" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="cognome" class="form-label">Cognome</label>
-                    <input type="text" name="cognome" class="form-control" id="cognome" placeholder="Cognome" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="CF" class="form-label">Codice Fiscale</label>
-                    <input type="text" name="CF" class="form-control" id="CF" placeholder="Codice Fiscale" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" id="email" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" placeholder="Email" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="telefono" class="form-label">Numero di Telefono</label>
-                    <input type="tel" name="telefono" class="form-control" id="telefono" pattern="\+?[0-9\s\-]+" placeholder="Numero di Telefono" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" id="username" placeholder="Username" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" id="password" placeholder="Password" maxlength="255" required>
-                </div>
-                <div class="form-group mb-3">
-                    <label for="confermaPassword" class="form-label">Conferma Password</label>
-                    <input type="password" name="confermaPassword" class="form-control" id="confermaPassword" placeholder="Conferma la password" maxlength="255" oninput="this.setCustomValidity(this.value !== document.getElementById('password').value ? 'Le password non coincidono' : '')" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Registrati</button>
-            </form>
-        </div>
+  <div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-lg p-4" style="max-width: 500px; width: 100%; border-radius: 15px; background-color: #f8f9fa;">
+        <h2 class="mb-4 text-center text-primary">Registrazione</h2>
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" name="nome" class="form-control" id="nome" placeholder="Nome" required>
+            </div>
+            <div class="mb-3">
+                <label for="cognome" class="form-label">Cognome</label>
+                <input type="text" name="cognome" class="form-control" id="cognome" placeholder="Cognome" required>
+            </div>
+            <div class="mb-3">
+                <label for="CF" class="form-label">Codice Fiscale</label>
+                <input type="text" name="CF" class="form-control" id="CF" placeholder="Codice Fiscale" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" id="email" placeholder="Email" required>
+            </div>
+            <div class="mb-3">
+                <label for="telefono" class="form-label">Telefono</label>
+                <input type="tel" name="telefono" class="form-control" id="telefono" placeholder="Telefono" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" id="username" placeholder="Username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
+            </div>
+            <div class="mb-3">
+                <label for="confermaPassword" class="form-label">Conferma Password</label>
+                <input type="password" name="confermaPassword" class="form-control" id="confermaPassword" placeholder="Conferma Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Registrati</button>
+        </form>
     </div>
   </div>
 {% endblock %}

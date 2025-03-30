@@ -7,28 +7,29 @@
 {% with messages = get_flashed_messages() %}
 {% if messages %}
     {% for message in messages %}
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
         {{ message }}
         <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
       </div>
     {% endfor %}
 {% endif %}
 {% endwith %}
-<h1 class="mb-4 text-center">Lista dei Libri</h1>
+
+<h1 class="mb-4 text-center text-primary">Lista dei Libri</h1>
 <div class="container">
     <div class="row">
         {% for libro in libri %}
-          <div class="col-md-6">
-              <div class="card mb-3">
-                  <div class="card-body">
-                      <h5 class="card-title">{{ libro[1] }}</h5> <!-- Titolo -->
+          <div class="col-lg-4 col-md-6 mb-4">
+              <div class="card shadow-lg" style="border-radius: 15px; background-color: #f8f9fa;">
+                  <div class="card-body text-center">
+                      <h5 class="card-title text-dark fw-bold">{{ libro[1] }}</h5> <!-- Titolo -->
                       <p class="card-text">
-                          <strong>ISBN:</strong> {{ libro[0] }}<br>
-                          <strong>Genere:</strong> {{ libro[2] }}<br>
-                          <strong>Copie Disponibili:</strong> {{ libro[3] }}<br>
-                          <strong>Autori:</strong> {{ libro[5] }}
+                          <span class="badge bg-secondary">ISBN: {{ libro[0] }}</span><br>
+                          <span class="badge bg-info text-dark">Genere: {{ libro[2] }}</span><br>
+                          <span class="badge bg-success">Copie Disponibili: {{ libro[3] }}</span><br>
+                          <span class="badge bg-warning text-dark">Autori: {{ libro[5] }}</span>
                       </p>
-                      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-{{ libro[0] }}">
+                      <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-{{ libro[0] }}">
                           Mostra Riassunto
                       </button>
                   </div>
@@ -39,15 +40,15 @@
           <div class="modal fade" id="modal-{{ libro[0] }}" tabindex="-1" aria-labelledby="modalLabel-{{ libro[0] }}" aria-hidden="true">
               <div class="modal-dialog">
                   <div class="modal-content">
-                      <div class="modal-header">
+                      <div class="modal-header bg-primary text-white">
                           <h5 class="modal-title" id="modalLabel-{{ libro[0] }}">Riassunto di "{{ libro[1] }}"</h5>
                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
-                      <div class="modal-body">
+                      <div class="modal-body text-dark">
                           {{ libro[4] }} <!-- Riassunto -->
                       </div>
                       <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Chiudi</button>
                       </div>
                   </div>
               </div>
