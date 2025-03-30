@@ -85,18 +85,23 @@ def add_book():
             ISBN = request.form['ISBN']
             titolo = request.form['titolo']
             categoria = request.form['categoria']
-            autori = request.form['autori']
+            autore = request.form['autori']
             x = request.form['x']
             y = request.form['y']
             z = request.form['z']
 
             # Aggiungi il libro nel database
             cur = mysql.connection.cursor()
-            cur.execute("INSERT INTO Libri (ISBN, titolo, categoria, autori, x, y, z) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                        (ISBN, titolo, categoria, autori, x, y, z))
+            cur.execute("INSERT INTO Libri (ISBN, titolo, categoria, autore) VALUES (%s, %s, %s, %s)",
+                        (ISBN, titolo, categoria, autore))
+
+            cur.execute("""
+                INSERT INTO Inventario (ISBN, x, y, z)
+                VALUES (%s, %s, %s, %s)
+            """, (ISBN, x, y, z))
+
             mysql.connection.commit()
             cur.close()
-
             flash("Libro aggiunto con successo!")
             return redirect(url_for('home'))  # Reindirizza alla home page
         return render_template('add_book.html')  # Rende la pagina con il form
